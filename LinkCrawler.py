@@ -1,4 +1,4 @@
-import sys
+import argparse
 import time
 import random
 import requests
@@ -41,7 +41,7 @@ def extract_URL(url):
 		res = s.get(url, headers=headers, proxies=proxies, verify=False, allow_redirects=False)
 		print("(" + str(urls.index(url)+1) + ") " + url + " (" + str(res.status_code) + ")")
 		
-		if res.status_code == 302 and res.headers["Location"] not in urls:
+		if res.status_code in [301, 302] and res.headers["Location"] not in urls:
 			urls.append(res.headers["Location"])
 		else:
 			if res.status_code == 200:
@@ -49,7 +49,7 @@ def extract_URL(url):
 				f.write(url + "\n")
 				f.close()
 			f = open(filename + ".log", "a+")
-			f.write("[{}] {} ({})\n".format(time.strftime("%d/%m/%Y %H:%M:%S", time.localtime(time.time())), url, str(res.status_code)))
+			f.write("[{}] {} (Status: {} {} | Content-Type: {})\n".format(time.strftime("%d/%m/%Y %H:%M:%S", time.localtime(time.time())), url, str(res.status_code), res.reason, res.headers["Content-Type"]))
 			f.close()
 
 			links_find = list()
@@ -76,25 +76,23 @@ def extract_URL(url):
 
 if __name__ == "__main__":
 	banner()
-	headers = dict()
-	proxies = dict()
-	if len(sys.argv) == 2:
-		proxies['http'] = ''
-		proxies['https'] = ''
-	elif len(sys.argv) == 3:
-		proxies['http'] = sys.argv[2]
-		proxies['https'] = sys.argv[2]
-	else:
-		exit(""" Usage: python {scriptname} URL [Proxy Server]
- 
- Examples:
-	- python {scriptname} http://example.com http://127.0.0.1:8080 (with Proxy)
-	- python {scriptname} http://example.com\n""".format(scriptname=sys.argv[0]))
+	parser = argparse.ArgumentParser(description="LinkCrawler ...")
+	parser.add_argument("URL", help="URL need to crawl (E.g: http://example.com/)")
+	parser.add_argument("--proxy", help="Forwarding HTTP requests via proxy (E.g: http://127.0.0.1:8080,...)")
+	parser.add_argument("--headers", help="Adding or modifying headers on HTTP requests (E.g: --headers \"Authorization: ...\" [--headers \"Cookie: ...\" [...]])", default=[], action="append")
+	args = parser.parse_args()
 
-	urls = [sys.argv[1]]
 	filename = "urls_{}".format(time.strftime("%Y_%m_%d_%H_%M_%S", time.localtime(time.time())))
-
 	user_agents = requests.get("https://gist.githubusercontent.com/pzb/b4b6f57144aea7827ae4/raw/cf847b76a142955b1410c8bcef3aabe221a63db1/user-agents.txt").text.split("\n")[:-1]
+
+	urls = [args.URL]
+	proxies = dict()
+	proxies["http"] = args.proxy
+	proxies["https"] = args.proxy
+	headers = dict()
+	for header in args.headers:
+		headers[header.split(": ")[0]] = header.split(": ")[1]
+
 	s = requests.Session()
 	for url in urls:
 		extract_URL(url)
