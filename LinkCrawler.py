@@ -33,35 +33,44 @@ def banner():
 
 def extract_URL(url):
 	try:
-		Regex = "(href|src|srcset|action|data)[\t\s]*=[\t\s]*['\"]?([^ '\">]+)['\"]?"
+		REGEX = [
+			"<[^<>]*(?:href|src|srcset|action|data)[\t\s]*=[\t\s]*['\"]?([^ '\"<>]+)['\"]?[^<>]*>"
+		]
 
 		headers["User-Agent"] = user_agents[random.randrange(len(user_agents))]
 		res = s.get(url, headers=headers, proxies=proxies, verify=False, allow_redirects=False)
 		print("(" + str(urls.index(url)+1) + ") " + url + " (" + str(res.status_code) + ")")
 		
-		if res.status_code == 200:
-			f = open(filename + ".txt", "a+")
-			f.write(url + "\n")
+		if res.status_code == 302 and res.headers["Location"] not in urls:
+			urls.append(res.headers["Location"])
+		else:
+			if res.status_code == 200:
+				f = open(filename + ".txt", "a+")
+				f.write(url + "\n")
+				f.close()
+			f = open(filename + ".log", "a+")
+			f.write("[{}] {} ({})\n".format(time.strftime("%d/%m/%Y %H:%M:%S", time.localtime(time.time())), url, str(res.status_code)))
 			f.close()
-		f = open(filename + ".log", "a+")
-		f.write("[{}] {} ({})\n".format(time.strftime("%d/%m/%Y %H:%M:%S", time.localtime(time.time())), url, str(res.status_code)))
-		f.close()
 
+			links_find = list()
+			for r in REGEX:
+				links_find += re.findall(r, res.text, flags=re.IGNORECASE)
 
-		for i in list(set(re.findall(Regex, res.text, flags=re.IGNORECASE))):
-			url_parse = urlparse(i[1])
-			if (url_parse.netloc == '' or url_parse.netloc == urlparse(url).netloc) and url_parse.scheme in ['', 'http', 'https']:
-				if url_parse.scheme == '':
-					url_parse = url_parse._replace(scheme=urlparse(url).scheme)
-				if url_parse.netloc == '':
-					url_parse = url_parse._replace(netloc=urlparse(url).netloc)
-				if url_parse.path[0] != '/':
-					url_parse = url_parse._replace(path=("/".join(urlparse(url).path.split("/")[:-1]) + "/" + url_parse.path))
+			links_find = list(set(links_find))
+			for link in links_find:
+				url_parse = urlparse(link)
+				if (url_parse.netloc == '' or url_parse.netloc == urlparse(url).netloc) and url_parse.scheme in ['', 'http', 'https']:
+					if url_parse.scheme == '':
+						url_parse = url_parse._replace(scheme=urlparse(url).scheme)
+					if url_parse.netloc == '':
+						url_parse = url_parse._replace(netloc=urlparse(url).netloc)
+					if url_parse.path != '' and url_parse.path[0] != '/':
+						url_parse = url_parse._replace(path=("/".join(urlparse(url).path.split("/")[:-1]) + "/" + url_parse.path))
 
-				if urlunparse(url_parse) not in urls:
-					urls.append(urlunparse(url_parse))
+					if urlunparse(url_parse) not in urls:
+						urls.append(urlunparse(url_parse))
 	except Exception as e:
-		pass
+		print(e)
 
 
 
@@ -92,4 +101,4 @@ if __name__ == "__main__":
 
 	print("""
  [+] Links Crawled: {filename}.txt
- [+] LOG: {filename}.log""".format(filename=filename))
+ [+] LOG requests: {filename}.log""".format(filename=filename))
