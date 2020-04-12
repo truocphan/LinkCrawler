@@ -1,4 +1,5 @@
 import argparse
+import os, sys
 import time
 import random
 import requests
@@ -75,6 +76,9 @@ def extract_URL(url):
 
 
 if __name__ == "__main__":
+	dir_script = os.path.dirname(os.path.realpath(sys.argv[0]))
+	if not os.path.isdir(os.path.join(dir_script, "RESULTS")):
+		os.mkdir(os.path.join(dir_script, "RESULTS"))
 	banner()
 	parser = argparse.ArgumentParser(description="LinkCrawler ...")
 	parser.add_argument("URL", help="URL need to crawl (E.g: http://example.com/)")
@@ -82,7 +86,7 @@ if __name__ == "__main__":
 	parser.add_argument("--headers", help="Adding or modifying headers on HTTP requests (E.g: --headers \"Authorization: ...\" [--headers \"Cookie: ...\" [...]])", default=[], action="append")
 	args = parser.parse_args()
 
-	filename = "urls_{}".format(time.strftime("%Y_%m_%d_%H_%M_%S", time.localtime(time.time())))
+	filename = os.path.join(dir_script, "RESULTS", "urls_{}".format(time.strftime("%Y_%m_%d_%H_%M_%S", time.localtime(time.time()))))
 	user_agents = requests.get("https://gist.githubusercontent.com/pzb/b4b6f57144aea7827ae4/raw/cf847b76a142955b1410c8bcef3aabe221a63db1/user-agents.txt").text.split("\n")[:-1]
 
 	urls = [args.URL]
