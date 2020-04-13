@@ -84,7 +84,7 @@ if __name__ == "__main__":
 	parser.add_argument("URL", help="URL need to crawl (E.g: http://example.com/)")
 	parser.add_argument("--proxy", help="Forwarding HTTP requests via proxy (E.g: http://127.0.0.1:8080,...)")
 	parser.add_argument("--headers", help="Adding or modifying headers on HTTP requests (E.g: --headers \"Authorization: ...\" [--headers \"Cookie: ...\" [...]])", default=[], action="append")
-	parser.add_argument("--wordlist", help="", default=os.path.join(dir_script, "wordlist", "default.txt"))
+	parser.add_argument("--wordlist", help="Wordlist file for brute force url (Default: " + os.path.join(dir_script, "wordlist", "default.txt")+")", default=os.path.join(dir_script, "wordlist", "default.txt"))
 	args = parser.parse_args()
 
 	filename = os.path.join(dir_script, "RESULTS", "urls_{}".format(time.strftime("%Y_%m_%d_%H_%M_%S", time.localtime(time.time()))))
@@ -97,7 +97,7 @@ if __name__ == "__main__":
 		f.close
 		[urls.append(urlparse(args.URL).scheme + "://" + urlparse(args.URL).netloc + "/" + i) for i in content if (urlparse(args.URL).scheme + "://" + urlparse(args.URL).netloc + "/" + i) not in urls]
 	except Exception as e:
-		raise e
+		exit(e)
 	
 	proxies = dict()
 	proxies["http"] = args.proxy
