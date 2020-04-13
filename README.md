@@ -15,22 +15,22 @@
  \[+] Gmail:    truocphan112017@gmail.com\
  \[+] Youtube:  https://www.youtube.com/channel/UCtQSQrgAQSTKdvsEzrfpBzQ\
 
-=========================================================================\
-=========================================================================\
-\
-usage: LinkCrawler.py \[-h] \[--proxy PROXY] \[--headers HEADERS] \[--wordlist WORDLIST] URL\
-\
-LinkCrawler ...\
-\
-positional arguments:\
-  URL                  URL need to crawl (E.g: http://example.com/)\
-\
-optional arguments:\
-  -h, --help           show this help message and exit\
-  --proxy PROXY        Forwarding HTTP requests via proxy (E.g:\
-                       http://127.0.0.1:8080,...)\
-  --headers HEADERS    Adding or modifying headers on HTTP requests (E.g: \
-                       --headers "Authorization: ..." \[--headers "Cookie: ..."\
-                       \[...]])\
-  --wordlist WORDLIST  Wordlist file for brute force url (Default:\
+=========================================================================<br>
+=========================================================================<br>
+<br>
+usage: LinkCrawler.py \[-h] \[--proxy PROXY] \[--headers HEADERS] \[--wordlist WORDLIST] URL<br>
+<br>
+LinkCrawler ...<br>
+<br>
+positional arguments:<br>
+  URL                  URL need to crawl (E.g: http://example.com/)<br>
+<br>
+optional arguments:<br>
+  -h, --help           show this help message and exit<br>
+  --proxy PROXY        Forwarding HTTP requests via proxy (E.g:<br>
+                       http://127.0.0.1:8080,...)<br>
+  --headers HEADERS    Adding or modifying headers on HTTP requests (E.g: <br>
+                       --headers "Authorization: ..." \[--headers "Cookie: ..."<br>
+                       \[...]])<br>
+  --wordlist WORDLIST  Wordlist file for brute force url (Default:<br>
                        /home/truocphan/LinkCrawler/wordlist/default.txt)
