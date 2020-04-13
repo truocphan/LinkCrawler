@@ -84,12 +84,21 @@ if __name__ == "__main__":
 	parser.add_argument("URL", help="URL need to crawl (E.g: http://example.com/)")
 	parser.add_argument("--proxy", help="Forwarding HTTP requests via proxy (E.g: http://127.0.0.1:8080,...)")
 	parser.add_argument("--headers", help="Adding or modifying headers on HTTP requests (E.g: --headers \"Authorization: ...\" [--headers \"Cookie: ...\" [...]])", default=[], action="append")
+	parser.add_argument("--wordlist", help="", default=os.path.join(dir_script, "wordlist", "default.txt"))
 	args = parser.parse_args()
 
 	filename = os.path.join(dir_script, "RESULTS", "urls_{}".format(time.strftime("%Y_%m_%d_%H_%M_%S", time.localtime(time.time()))))
 	user_agents = requests.get("https://gist.githubusercontent.com/pzb/b4b6f57144aea7827ae4/raw/cf847b76a142955b1410c8bcef3aabe221a63db1/user-agents.txt").text.split("\n")[:-1]
 
 	urls = [args.URL]
+	try:
+		f = open(args.wordlist)
+		content = f.read().split("\n")
+		f.close
+		[urls.append(urlparse(args.URL).scheme + "://" + urlparse(args.URL).netloc + "/" + i) for i in content if (urlparse(args.URL).scheme + "://" + urlparse(args.URL).netloc + "/" + i) not in urls]
+	except Exception as e:
+		raise e
+	
 	proxies = dict()
 	proxies["http"] = args.proxy
 	proxies["https"] = args.proxy
