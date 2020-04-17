@@ -34,9 +34,7 @@ def banner():
 
 def extract_URL(url):
 	try:
-		REGEX = [
-			"<[^<>]*(?:href|src|srcset|action|data)[\t\s]*=[\t\s]*['\"]?([^ '\"<>]+)['\"]?[^<>]*>"
-		]
+		REGEX = "<[^<>]*(?:href|src|srcset|action|data)[\t\s]*=[\t\s]*['\"]?([^ '\"<>]+)['\"]?[^<>]*>"
 
 		headers["User-Agent"] = user_agents[random.randrange(len(user_agents))]
 		res = s.get(url, headers=headers, proxies=proxies, verify=False, allow_redirects=False)
@@ -53,9 +51,7 @@ def extract_URL(url):
 			f.write("[{}] {} (Status: {} {} | Content-Type: {})\n".format(time.strftime("%d/%m/%Y %H:%M:%S", time.localtime(time.time())), url, str(res.status_code), res.reason, res.headers["Content-Type"]))
 			f.close()
 
-			links_find = list()
-			for r in REGEX:
-				links_find += re.findall(r, res.text, flags=re.IGNORECASE)
+			links_find = re.findall(REGEX, res.text, flags=re.IGNORECASE)
 
 			links_find = list(set(links_find))
 			for link in links_find:
@@ -84,11 +80,13 @@ if __name__ == "__main__":
 	parser.add_argument("URL", help="URL need to crawl (E.g: http://example.com/)")
 	parser.add_argument("--proxy", help="Forwarding HTTP requests via proxy (E.g: http://127.0.0.1:8080,...)")
 	parser.add_argument("--headers", help="Adding or modifying headers on HTTP requests (E.g: --headers \"Authorization: ...\" [--headers \"Cookie: ...\" [...]])", default=[], action="append")
-	parser.add_argument("--wordlist", help="Wordlist file for brute force url (Default: " + os.path.join(dir_script, "wordlist", "default.txt")+")", default=os.path.join(dir_script, "wordlist", "default.txt"))
+	parser.add_argument("--wordlist", help="Wordlist file for brute force url (Default: " + os.path.join(dir_script, "data", "wordlists.txt")+")", default=os.path.join(dir_script, "data", "wordlists.txt"))
 	args = parser.parse_args()
 
 	filename = os.path.join(dir_script, "RESULTS", "urls_{}".format(time.strftime("%Y_%m_%d_%H_%M_%S", time.localtime(time.time()))))
-	user_agents = requests.get("https://gist.githubusercontent.com/pzb/b4b6f57144aea7827ae4/raw/cf847b76a142955b1410c8bcef3aabe221a63db1/user-agents.txt").text.split("\n")[:-1]
+	f = open(os.path.join(dir_script, "data", "user-agents.txt"))
+	user_agents = f.read().split("\n")
+	f.close()
 
 	urls = [args.URL]
 	try:
