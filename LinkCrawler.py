@@ -6,8 +6,7 @@ import requests
 import re
 from urlparse import urlparse, urlunparse
 import warnings
-
-warnings.filterwarnings('ignore', message='Unverified HTTPS request')
+warnings.filterwarnings("ignore", message="Unverified HTTPS request")
 
 
 def banner():
@@ -64,8 +63,8 @@ def extract_URL(url):
 					if url_parse.path != '' and url_parse.path[0] != '/':
 						url_parse = url_parse._replace(path=("/".join(urlparse(url).path.split("/")[:-1]) + "/" + url_parse.path))
 
-					if urlunparse(url_parse) not in urls:
-						urls.append(urlunparse(url_parse))
+					if urlunparse(url_parse._replace(fragment="")) not in urls:
+						urls.append(urlunparse(url_parse._replace(fragment="")))
 	except Exception as e:
 		print(e)
 
@@ -93,7 +92,7 @@ if __name__ == "__main__":
 		f = open(args.wordlist)
 		content = f.read().split("\n")
 		f.close
-		[urls.append(urlparse(args.URL).scheme + "://" + urlparse(args.URL).netloc + "/" + i) for i in content if (urlparse(args.URL).scheme + "://" + urlparse(args.URL).netloc + "/" + i) not in urls]
+		[urls.append(urlunparse(urlparse(i)._replace(scheme=urlparse(args.URL).scheme)._replace(netloc=urlparse(args.URL).netloc)._replace(fragment=""))) for i in content if urlunparse(urlparse(i)._replace(scheme=urlparse(args.URL).scheme)._replace(netloc=urlparse(args.URL).netloc)._replace(fragment="")) not in urls]
 	except Exception as e:
 		exit(e)
 	
